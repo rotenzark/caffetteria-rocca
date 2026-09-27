@@ -1,0 +1,241 @@
+/* Caffetteria Rocca (#225) — «Chi dorme non piglia cornetto.»
+   La pagina gira intorno alla ruota del loro menù, come la Coffee Taster's Flavor Wheel: dentro le cinque famiglie, fuori
+   le voci, per i cornetti le nove creme. Su desktop la ruota sta ferma a sinistra (se ne vede la parte destra, col mozzo)
+   e gira coi capitoli; sul telefono apre la pagina e ogni capitolo ha la sua ruotina.
+   Carta crema dell'insegna, testo color caffè, oro del loro disco, marmo nero del banco. Caratteri: Abhaya Libre (testo e
+   titoli), Questrial (etichette, come «BAR · TAVOLA FREDDA»), Radley (le maiuscole dell'insegna), Norican (il «Rocca»). */
+
+:root {
+  --carta: #F2EBDD;
+  --carta-2: #E8DCC5;
+  --carta-3: #FBF6EA;
+  --caffe: #3B2418;
+  --caffe-2: #5E3E2B;
+  --scuro: #2C1A11;
+  --oro: #C9A04A;
+  --oro-chiaro: #E2BE6A;
+  --oro-scuro: #7D5A1C;
+  --marmo: #1B1A19;
+  --filo: #D6C4A4;
+  --h-testata: 64px;
+  --gutter: 16px;
+  --f-testo: 'Abhaya Libre', Georgia, 'Times New Roman', serif;
+  --f-etichetta: 'Questrial', 'Helvetica Neue', Arial, sans-serif;
+  --f-insegna: 'Radley', Georgia, serif;
+  --f-firma: 'Norican', 'Brush Script MT', cursive;
+  /* il diametro della ruota: sul telefono sta nella larghezza (centro + 0,622 d fino all'indice) */
+  --d: min(calc((100vw - 36px) / .63), 620px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--h-testata) + 12px); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--carta); color: var(--caffe); font: 500 1.14rem/1.55 var(--f-testo); font-variant-numeric: lining-nums; overflow-x: hidden; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+p { margin: 0 0 1em; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.salta-al-testo { position: absolute; left: -9999px; top: 8px; z-index: 100; padding: 10px 14px; background: var(--scuro); color: var(--carta); font: 800 1.02rem/1 var(--f-testo); text-decoration: none; }
+.salta-al-testo:focus { left: 8px; }
+:focus-visible { outline: 3px solid var(--oro-scuro); outline-offset: 3px; }
+
+/* ══════════ testata ══════════ */
+.testata { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--h-testata); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 var(--gutter); background: rgba(242, 235, 221, .96); border-bottom: 1px solid var(--filo); }
+.marchio { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; }
+.marchio__disco { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 42% 36%, #7B4A27, #4E2D17 60%, #2E1A0D); box-shadow: inset 0 0 0 3px #D4A646, 0 0 0 1.5px #1B221D; }
+.marchio__r { font: 400 26px/1 var(--f-firma); color: #F0CF7A; transform: translate(1px, 2px) rotate(-8deg); }
+.marchio__nome { font: 400 1.08rem/1 var(--f-insegna); letter-spacing: .02em; white-space: nowrap; }
+.voci { display: none; }
+.testata__destra { display: flex; align-items: center; gap: 10px; flex: none; }
+.lingue { display: flex; border: 1px solid var(--caffe-2); border-radius: 999px; overflow: hidden; }
+.lingue button { border: 0; background: transparent; padding: 7px 10px; min-width: 36px; min-height: 34px; font: 400 .78rem/1 var(--f-etichetta); letter-spacing: .08em; cursor: pointer; color: var(--caffe); }
+.lingue button[aria-pressed="true"] { background: var(--caffe); color: var(--carta); }
+.testata__wa { display: none; padding: 9px 16px; border-radius: 999px; background: var(--caffe); color: var(--carta); text-decoration: none; font: 400 .8rem/1 var(--f-etichetta); letter-spacing: .1em; text-transform: uppercase; }
+.burger { width: 44px; height: 44px; border: 0; background: transparent; display: grid; align-content: center; justify-items: center; gap: 6px; cursor: pointer; padding: 0; }
+.burger span { display: block; width: 24px; height: 2px; background: var(--caffe); transition: transform .25s, opacity .25s; }
+.burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+.indice-mobile { position: fixed; top: var(--h-testata); left: 0; right: 0; z-index: 49; display: grid; padding: 8px var(--gutter) 20px; background: var(--carta-3); border-bottom: 1px solid var(--filo); box-shadow: 0 18px 30px rgba(44, 26, 17, .12); }
+.indice-mobile[hidden] { display: none; }
+.indice-mobile a { padding: 13px 0; border-bottom: 1px solid var(--carta-2); font: 800 1.3rem/1.1 var(--f-testo); text-decoration: none; }
+@media (min-width: 560px) { .testata__wa { display: inline-block; } }
+@media (max-width: 379px) { .marchio__caffetteria { display: none; } .marchio__nome { font: 400 1.5rem/1 var(--f-firma); letter-spacing: 0; } }
+@media (min-width: 1180px) {
+  .testata { padding: 0 28px; }
+  .voci { display: flex; gap: 22px; }
+  .voci a { font: 800 1.02rem/1 var(--f-testo); text-decoration: none; padding: 8px 0; border-bottom: 2px solid transparent; }
+  .voci a:hover { border-bottom-color: var(--oro); }
+  .burger { display: none; }
+  .indice-mobile { display: none !important; }
+}
+
+/* ══════════ pagina e colonna della ruota ══════════ */
+.pagina { padding-top: var(--h-testata); }
+.ruota-colonna { position: relative; height: calc(var(--d) * .64); overflow: hidden; }
+.ruota { position: absolute; width: var(--d); height: var(--d); left: calc(20px - var(--d) * .38); top: 50%; margin-top: calc(var(--d) / -2); }
+.ruota__disco, .ruota__fermo { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ruota__disco { transform-origin: 50% 50%; will-change: transform; }
+.firma-attesa .ruota__disco { transform: rotate(var(--pre)) !important; }
+.ruota__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.ruota__svg path { stroke: var(--carta); stroke-width: 2.2; stroke-linejoin: round; }
+.ruota__nome { font: 800 20px/1 var(--f-testo); pointer-events: none; }
+.ruota__voce text { font: 400 21.5px/1 var(--f-etichetta); pointer-events: none; }
+.ruota__pioli circle { fill: #E2BE6A; stroke: #7D5A1C; stroke-width: 1.2; }
+.ruota__fam { transition: opacity .6s ease; }
+.ruota[data-attiva] .ruota__fam { opacity: .34; }
+.ruota[data-attiva="caffe"] .ruota__fam[data-f="caffe"],
+.ruota[data-attiva="specialita"] .ruota__fam[data-f="specialita"],
+.ruota[data-attiva="cornetti"] .ruota__fam[data-f="cornetti"],
+.ruota[data-attiva="tavola"] .ruota__fam[data-f="tavola"],
+.ruota[data-attiva="aperitivo"] .ruota__fam[data-f="aperitivo"] { opacity: 1; }
+.ruota__voce.is-scelta path { stroke: var(--oro-scuro); stroke-width: 5; }
+.ruota__voce.is-scelta text { font-weight: 700; }
+.ruota__fermo { pointer-events: none; overflow: visible; }
+.ruota__rocca { font: 400 66px/1 var(--f-firma); }
+.ruota__lama { transition: none; }
+
+/* ══════════ contenuti ══════════ */
+.contenuti { padding: 0 var(--gutter) 24px; min-width: 0; }
+.apertura { padding: 26px 0 56px; }
+.insegna-riga { margin: 0 0 14px; font: 400 .86rem/1.3 var(--f-insegna); letter-spacing: .2em; text-transform: uppercase; color: var(--oro-scuro); }
+.apertura__titolo { margin: 0 0 18px; font: 800 clamp(2.7rem, 12vw, 5rem)/.96 var(--f-testo); letter-spacing: -.01em; color: var(--caffe); }
+.apertura__sotto { font-size: 1.24rem; line-height: 1.5; max-width: 32em; color: var(--caffe-2); }
+.scelta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 24px 0 26px; padding: 14px 16px; background: var(--carta-3); border: 1px solid var(--filo); border-left: 4px solid var(--oro); border-radius: 4px; max-width: 34em; }
+.scelta__esito { margin: 0; flex: 1 1 16em; font-size: 1.2rem; line-height: 1.35; transition: opacity .35s ease; }
+.scelta__esito b { font-weight: 800; }
+.firma-attesa .scelta__esito, .scelta__esito.is-gira { opacity: .32; }
+.scelta__pallino { display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: -2px; background: var(--c, #F6F1E6); box-shadow: inset 0 0 0 1.5px rgba(42, 24, 15, .55); }
+.scelta__gira { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--caffe); border-radius: 999px; background: transparent; cursor: pointer; font: 400 .82rem/1 var(--f-etichetta); letter-spacing: .12em; text-transform: uppercase; }
+.scelta__gira:hover { background: var(--caffe); color: var(--carta); }
+.scelta__gira[disabled] { opacity: .5; cursor: default; }
+.no-js .scelta__gira { display: none; } /* senza JS la ruota non gira: niente bottone morto */
+/* sul telefono l'esito della ruota sta subito sotto la ruota, vicino all'indice (nel DOM resta dopo il titolo) */
+@media (max-width: 999px) {
+  .apertura { display: flex; flex-direction: column; padding-top: 14px; }
+  .scelta { order: -1; margin: 0 0 28px; }
+}
+.azioni { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 20px; }
+.bottone { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 20px; border: 1.5px solid var(--caffe); border-radius: 999px; text-decoration: none; font: 400 .84rem/1.1 var(--f-etichetta); letter-spacing: .1em; text-transform: uppercase; }
+.bottone--pieno { background: var(--caffe); color: var(--carta); }
+.bottone:hover { background: var(--scuro); color: var(--carta); }
+.stato-riga { margin: 0 0 8px; font: 400 .9rem/1.3 var(--f-etichetta); letter-spacing: .04em; }
+.stato::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: #9C8B74; vertical-align: 1px; }
+.stato.is-aperto::before { background: #3F8A4A; }
+.voti { margin: 0; font-size: 1.05rem; }
+.voti a { text-decoration: none; border-bottom: 1px solid var(--filo); }
+.voti b { font-weight: 800; font-size: 1.2rem; }
+
+.capitolo { position: relative; padding: 56px 0; border-top: 1px solid var(--filo); }
+.capitolo::after { content: ''; display: table; clear: both; }
+.capitolo[data-famiglia="caffe"] { --fam: #4A2C1C; }
+.capitolo[data-famiglia="specialita"] { --fam: #9A2A2E; }
+.capitolo[data-famiglia="cornetti"] { --fam: #C48A2F; }
+.capitolo[data-famiglia="tavola"] { --fam: #4E6840; }
+.capitolo[data-famiglia="aperitivo"] { --fam: #E07A3A; }
+.fetta { float: right; width: 82px; height: 82px; margin: -4px 0 10px 14px; }
+.capitolo__kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; font: 400 .8rem/1.2 var(--f-etichetta); letter-spacing: .18em; text-transform: uppercase; color: var(--oro-scuro); }
+.capitolo__kicker::before { content: ''; flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--fam, var(--oro)); box-shadow: 0 0 0 2px var(--carta), 0 0 0 3px var(--fam, var(--oro)); }
+.capitolo__titolo { margin: 0 0 20px; font: 800 clamp(2.2rem, 8vw, 3.5rem)/1.02 var(--f-testo); letter-spacing: -.005em; }
+.capitolo__testo { font-size: 1.2rem; line-height: 1.56; max-width: 34em; }
+
+.citazione { margin: 6px 0 26px; padding: 4px 0 4px 20px; border-left: 3px solid var(--oro); max-width: 30em; }
+.citazione p { margin: 0 0 8px; font: 800 clamp(1.35rem, 3.6vw, 1.7rem)/1.28 var(--f-testo); color: var(--caffe); }
+.citazione footer { font: 400 .8rem/1.3 var(--f-etichetta); letter-spacing: .12em; text-transform: uppercase; color: var(--oro-scuro); }
+.citazione .taglio { color: var(--caffe-2); font-weight: 500; }
+.creme { list-style: none; margin: 8px 0 30px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; max-width: 38em; }
+.creme li { display: flex; align-items: center; gap: 10px; font: 400 1rem/1.2 var(--f-etichetta); }
+.crema { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1.5px rgba(42, 24, 15, .4); }
+@media (min-width: 560px) { .creme { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.carta { margin: 6px 0 34px; display: grid; gap: 0 36px; max-width: 46em; }
+.carta div { padding: 14px 0; border-bottom: 1px dashed var(--filo); }
+.carta dt { font: 800 1.3rem/1.2 var(--f-testo); }
+.carta dd { margin: 4px 0 0; color: var(--caffe-2); font-size: 1.1rem; line-height: 1.4; }
+@media (min-width: 760px) { .carta { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.foto { margin: 0; }
+.foto__apri { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; overflow: hidden; }
+.foto__apri img { width: 100%; transition: transform .6s ease; }
+.foto__apri:hover img { transform: scale(1.025); }
+.foto figcaption { margin-top: 8px; font: 400 .86rem/1.35 var(--f-etichetta); letter-spacing: .02em; color: var(--caffe-2); }
+.foto-coppia { display: grid; gap: 14px; margin-top: 8px; }
+@media (min-width: 700px) { .foto-coppia { grid-template-columns: 1.55fr 1fr; align-items: end; } }
+.foto-terna { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.foto-terna .foto__apri img { aspect-ratio: 3 / 4; object-fit: cover; }
+.foto--larga { margin-top: 10px; max-width: 46em; }
+
+.capitolo--nota .capitolo__testo { margin-bottom: 0; }
+.capitolo--nota { padding-left: 18px; padding-right: 18px; margin: 40px 0; background: var(--carta-3); border: 1px solid var(--filo); box-shadow: inset 0 0 0 5px var(--carta-3), inset 0 0 0 6px var(--oro); border-radius: 4px; }
+
+/* il marmo nero del loro banco, per le parole dei clienti */
+.capitolo--pubblico { margin: 0 calc(var(--gutter) * -1); padding: 60px var(--gutter); border-top: 0; color: #F3ECDF; background-color: var(--marmo); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900' viewBox='0 0 1200 900'%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='1.4'/%3E%3C/filter%3E%3Cg fill='none' stroke='%23EDE6DA' stroke-linecap='round' filter='url(%23b)'%3E%3Cpath d='M-40 120C140 96 210 190 360 160S600 70 760 118 1010 210 1240 150' stroke-opacity='.2' stroke-width='2.2'/%3E%3Cpath d='M360 160C380 240 330 300 350 380S420 470 400 560' stroke-opacity='.12' stroke-width='1.3'/%3E%3Cpath d='M-30 520C120 470 260 560 420 520S700 430 880 480 1080 600 1240 560' stroke-opacity='.16' stroke-width='1.8'/%3E%3Cpath d='M880 480C900 560 860 640 900 720S1000 820 980 930' stroke-opacity='.1' stroke-width='1.2'/%3E%3Cpath d='M160 900C220 800 200 740 260 680S420 640 470 600' stroke-opacity='.13' stroke-width='1.4'/%3E%3Cpath d='M760 118C800 60 860 40 900 -20' stroke-opacity='.14' stroke-width='1.3'/%3E%3C/g%3E%3C/svg%3E"); background-size: cover; background-position: center; }
+.capitolo--pubblico .capitolo__kicker { color: var(--oro-chiaro); }
+.capitolo--pubblico .capitolo__kicker::before { background: var(--oro); box-shadow: 0 0 0 2px var(--marmo), 0 0 0 3px var(--oro); }
+.capitolo--pubblico .capitolo__titolo { color: #F7F0E3; }
+.voto-grande { color: var(--oro-chiaro); }
+.recensioni { list-style: none; margin: 10px 0 18px; padding: 0; display: grid; gap: 18px; }
+.recensione { margin: 0; padding: 20px 20px 16px; border: 1px solid rgba(226, 190, 106, .35); border-radius: 4px; background: rgba(27, 26, 25, .55); }
+.recensione blockquote { margin: 0 0 12px; }
+.recensione blockquote p { margin: 0; font-size: 1.2rem; line-height: 1.45; }
+.recensione__chi { margin: 0; font: 400 .8rem/1.3 var(--f-etichetta); letter-spacing: .08em; color: var(--oro-chiaro); }
+.taglio { color: #CFC4B2; }
+.pubblico__nota { margin: 0; font: 400 .84rem/1.4 var(--f-etichetta); color: #D8CDBB; }
+@media (min-width: 760px) { .recensioni { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.capitolo--dove { border-top: 0; }
+.orari { border-collapse: collapse; margin: 6px 0 24px; min-width: min(100%, 22em); font-size: 1.15rem; }
+.orari th, .orari td { padding: 9px 0; border-bottom: 1px solid var(--filo); text-align: left; }
+.orari th { font-weight: 500; padding-right: 36px; }
+.orari td { font: 400 1rem/1.2 var(--f-etichetta); letter-spacing: .04em; text-align: right; }
+.orari tr.is-today th, .orari tr.is-today td { font-weight: 800; color: var(--caffe); }
+.orari tr.is-today th::after { content: ' ●'; color: var(--oro-scuro); font-size: .7em; vertical-align: 2px; }
+.dati { margin: 0 0 24px; display: grid; gap: 14px; max-width: 40em; }
+.dati dt { font: 400 .76rem/1.2 var(--f-etichetta); letter-spacing: .16em; text-transform: uppercase; color: var(--oro-scuro); }
+.dati dd { margin: 3px 0 0; font-size: 1.16rem; }
+.mappa { margin-top: 8px; border-radius: 6px; overflow: hidden; border: 1px solid var(--filo); max-width: 46em; }
+.mappa iframe { display: block; width: 100%; height: 360px; border: 0; }
+
+/* ══════════ coda ══════════ */
+.coda { padding: 44px var(--gutter) 40px; background: var(--scuro); color: #EFE5D3; }
+.coda p { margin: 0 0 12px; max-width: 60em; }
+.coda__nome { font: 400 1.3rem/1.2 var(--f-insegna); letter-spacing: .14em; text-transform: uppercase; color: var(--oro-chiaro); }
+.coda__riga { font: 400 .92rem/1.5 var(--f-etichetta); }
+/* in Abhaya, non in Questrial: l'accento di «menù» in Questrial a 13 px è un filo (accenti-check) */
+.coda__cred { font: 500 .98rem/1.5 var(--f-testo); color: #D5C8B3; }
+.link--chiaro { color: var(--oro-chiaro); }
+
+/* ══════════ lightbox ══════════ */
+#lightbox { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(27, 17, 11, .94); }
+#lightbox[hidden] { display: none !important; }
+#lightbox img { max-width: min(1200px, 100%); max-height: 88vh; width: auto; border-radius: 4px; }
+#lightboxClose { position: absolute; top: 14px; right: 16px; width: 48px; height: 48px; border: 2px solid rgba(255, 255, 255, .6); border-radius: 50%; background: transparent; color: #fff; font-size: 32px; line-height: 1; cursor: pointer; }
+
+/* ══════════ reveal (plumbing) ══════════ */
+.js .reveal { opacity: 0; }
+.js .reveal.in-view { opacity: 1; }
+html:not(.js) .reveal { opacity: 1; }
+.reduced-motion .reveal { opacity: 1 !important; }
+
+/* ══════════ desktop: la ruota ferma a sinistra, i capitoli a destra ══════════ */
+@media (min-width: 1000px) {
+  :root { --gutter: 24px; --d: min(calc(100vh - var(--h-testata) - 44px), 60vw, 900px); }
+  .pagina { display: grid; grid-template-columns: calc(var(--d) * .622 + 60px) minmax(0, 1fr); }
+  .ruota-colonna { position: sticky; top: var(--h-testata); align-self: start; height: calc(100vh - var(--h-testata)); overflow: hidden; }
+  .ruota { left: calc(28px - var(--d) * .38); }
+  .contenuti { padding: 0 clamp(28px, 4vw, 72px) 40px clamp(8px, 1.5vw, 24px); }
+  .apertura { min-height: calc(100vh - var(--h-testata)); display: flex; flex-direction: column; justify-content: center; padding: 40px 0 64px; }
+  .apertura__titolo { font-size: clamp(3.4rem, 5.2vw, 5.4rem); }
+  .fetta { display: none; }
+  .capitolo { padding: 84px 0; }
+  .capitolo--pubblico { margin: 0 calc(clamp(28px, 4vw, 72px) * -1) 0 calc(clamp(8px, 1.5vw, 24px) * -1); padding: 84px clamp(28px, 4vw, 72px) 84px clamp(24px, 3vw, 48px); }
+  .capitolo--nota { padding-left: 32px; padding-right: 32px; }
+}
+
+@media print {
+  .testata, .ruota-colonna, .fetta, #lightbox { display: none !important; }
+  .pagina { padding-top: 0; }
+  .js .reveal { opacity: 1 !important; }
+}
